@@ -2,7 +2,7 @@
 "use client"
 import React, { useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 const Generate = () => {
 
@@ -15,6 +15,7 @@ const Generate = () => {
     const [handle, sethandle] = useState(searchParams.get("handle"))
     const [desc, setdesc] = useState("")
     const [pic, setpic] = useState("")
+    const router = useRouter()
 
     const handleChange = (index, link, linktext) => {
         setLinks((initialLinks) => {
@@ -34,36 +35,28 @@ const Generate = () => {
 
 
     const SubmitLink = async () => {
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
+        try {
+            const r = await fetch('/api/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ links, handle, pic, desc })
+            })
 
+            if (!r.ok) {
+                const errBody = await r.json().catch(() => ({}))
+                toast.error(errBody.message || 'Failed to create handle')
+                return
+            }
 
-        const raw = JSON.stringify({
-            "links": links,
-            "handle": handle,
-            "pic": pic,
-            "desc":desc
-        });
-
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: raw,
-            redirect: "follow"
-        };
-
-        const r = await fetch("http://localhost:3000/api/add", requestOptions)
-        const result = await r.json()
-        if(result.success){
-
-            toast.success(result.message)
-            setLinks([])
-            sethandle("")
-            setpic("")
-        }
-        else{
-            toast.error(result.message)
+            const result = await r.json()
+            if (result.success) {
+                toast.success(result.message)
+                router.push(`/${handle}`)
+            } else {
+                toast.error(result.message || 'Failed to create handle')
+            }
+        } catch (err) {
+            toast.error(err.message || 'Network error')
         }
 
     }
@@ -107,7 +100,12 @@ const Generate = () => {
 
                         <input value={pic || ""} onChange={e => { setpic(e.target.value) }} className='px-4 py-2 mx-2 my-2 bg-gray-500 focus:outline-pink-500 rounded-full w-full' type="text" placeholder='Enter link to your picture' />
                         <input value={desc || ""} onChange={e => { setdesc(e.target.value) }} className='px-4 py-2 mx-2 my-2 bg-gray-500 focus:outline-pink-500 rounded-full w-full' type="text" placeholder='Enter the description' />
-                        <button disabled={pic=="" || handle=="" ||links[0].linktest==""} onClick={() => SubmitLink()} className='p-5 py-2 mx-2 w-[65%] disabled:bg-slate-600  bg-purple-900 text-white font-bold rounded-3xl'>Create you  ByteLink</button>
+                        <button disabled={
+                            pic == "" ||
+                            handle == "" ||
+                            links.length === 0 ||
+                            links.some(l => !l.link || !l.linktext)
+                        } onClick={() => SubmitLink()} className='p-5 py-2 mx-2 w-[65%] disabled:bg-slate-600  bg-purple-900 text-white font-bold rounded-3xl'>Create you  ByteLink</button>
 
                     </div>
                 </div>

@@ -29,15 +29,14 @@ export default async function Page({ params }) {
         "handle": "bikash@",
         "pic": "https://cdn.pixabay.com/photo/2021/12/10/16/37/twitter-6860915_1280.png"
     }
-    return <div className="flex flex-col min-h-screen bg-purple-950
-  justify-center items-center">
-        {item && <div className="photo flex flex-col justify-center items-center">
-            <img width={50} src={item.pic} alt="" />
-            <span className="font-bold text-xl">@{item.handle} </span>
-            <span className="desc w-72 text-center">{item.desc}</span>
-            <div className="links">
+    return <div className="flex flex-col min-h-screen bg-gradient-to-b from-purple-900 to-purple-950 justify-center items-center p-6">
+        {item && <div className="photo flex flex-col justify-center items-center max-w-md w-full">
+            <img width={200} height={200} src={item.pic} alt="profile" className="rounded-full object-cover mb-6 shadow-2xl" />
+            <span className="font-bold text-3xl text-white mb-2">@{item.handle} </span>
+            <span className="desc w-full text-center text-gray-200 mb-6">{item.desc}</span>
+            <div className="links w-full space-y-3">
                 {item.links?.map((item, index) => {
-                    return <Link key={index} href={item.link}> <div className="bg-purple-300 flex justify-center shadow-2xl py-4 px-2  rounded-md min-w-72 my-3">
+                    return <Link key={index} href={item.link}> <div className="bg-purple-300 flex justify-center shadow-2xl py-4 px-2 rounded-lg w-full font-semibold hover:bg-purple-400 transition cursor-pointer">
                         {item.linktext}
 
                     </div>
